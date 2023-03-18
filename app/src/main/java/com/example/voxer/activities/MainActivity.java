@@ -1,8 +1,10 @@
-package com.example.voxer;
+package com.example.voxer.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import com.example.voxer.R;
 
 public class MainActivity extends AppCompatActivity {
 
