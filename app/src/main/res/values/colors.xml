@@ -7,6 +7,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="input_background">#fffae3</color>
+    <color name="background_main">#FFA66C</color>
     <color name="icon_background">#60ab9a</color>
     <color name="error">#f01e2c</color>
     <color name="received_message_background">#1a281f</color>

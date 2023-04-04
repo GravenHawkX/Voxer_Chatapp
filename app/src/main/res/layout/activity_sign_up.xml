@@ -8,6 +8,7 @@
     android:overScrollMode="never"
     android:padding="@dimen/_24sdp"
     android:scrollbars="none"
+    android:background="@color/background_main"
     tools:context=".activities.SignUpActivity">
 
     <LinearLayout
@@ -56,6 +57,7 @@
             android:layout_height="@dimen/_45sdp"
             android:layout_marginTop="@dimen/_20sdp"
             android:background="@drawable/background_input"
+            android:textColorHint="@color/black"
             android:hint="@string/name"
             android:imeOptions="actionNext"
             android:importantForAutofill="no"
@@ -72,6 +74,7 @@
             android:layout_height="@dimen/_45sdp"
             android:layout_marginTop="@dimen/_16sdp"
             android:background="@drawable/background_input"
+            android:textColorHint="@color/black"
             android:hint="@string/email"
             android:imeOptions="actionNext"
             android:importantForAutofill="no"
@@ -87,6 +90,7 @@
             android:layout_height="@dimen/_45sdp"
             android:layout_marginTop="@dimen/_16sdp"
             android:background="@drawable/background_input"
+            android:textColorHint="@color/black"
             android:hint="@string/password"
             android:imeOptions="actionNext"
             android:importantForAutofill="no"
@@ -102,6 +106,7 @@
             android:layout_height="@dimen/_45sdp"
             android:layout_marginTop="@dimen/_16sdp"
             android:background="@drawable/background_input"
+            android:textColorHint="@color/black"
             android:hint="@string/confirm_password"
             android:imeOptions="actionDone"
             android:importantForAutofill="no"
@@ -115,7 +120,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_16sdp"
-            android:animateLayoutChanges="true">
+            android:animateLayoutChanges="true"
+            >
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonSignUp"
@@ -143,7 +149,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_10sdp"
             android:text="@string/sign_in"
-            android:textColor="@color/primary"
+            android:textColor="@color/primary_dark"
             android:textSize="@dimen/_13ssp"
             android:textStyle="bold"/>
     </LinearLayout>
