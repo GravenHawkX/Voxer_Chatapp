@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -10,7 +8,9 @@
     android:overScrollMode="never"
     android:padding="@dimen/_24sdp"
     android:scrollbars="none"
-    android:background="@color/background_main"
+    android:background="@drawable/img_bg_2"
+    android:backgroundTint="#80FFFFFF"
+    android:backgroundTintMode="src_over"
     tools:context=".activities.SignInActivity">
 
     <LinearLayout
@@ -20,30 +20,24 @@
         android:orientation="vertical">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_40sdp"
-            android:fontFamily="@font/carter_one"
             android:text="@string/voxer_chat"
             android:textColor="@color/black"
             android:textSize="@dimen/_25ssp"
-            android:textStyle="bold" />
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_4sdp"
-            android:text="@string/login"
-            android:textColor="@color/secondary_text"
-            android:textSize="@dimen/_12ssp"
-            android:textStyle="bold"/>
-        
+            android:textStyle="bold"
+            android:fontFamily="@font/carter_one"/>
+
+
         <EditText
             android:id="@+id/InputEmail"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_45sdp"
             android:layout_marginTop="@dimen/_40sdp"
+            android:layout_marginLeft="@dimen/_10sdp"
+            android:layout_marginRight="@dimen/_10sdp"
             android:background="@drawable/background_input"
-            android:textColorHint="@color/black"
             android:hint="@string/email"
             android:imeOptions="actionNext"
             android:importantForAutofill="no"
@@ -51,13 +45,16 @@
             android:paddingStart="@dimen/_16sdp"
             android:paddingEnd="@dimen/_16sdp"
             android:textColor="@color/primary_text"
-            android:textSize="@dimen/_13ssp"/>
+            android:textColorHint="@color/black"
+            android:textSize="@dimen/_13ssp" />
 
         <EditText
             android:id="@+id/InputPassword"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_45sdp"
             android:layout_marginTop="@dimen/_16sdp"
+            android:layout_marginLeft="@dimen/_10sdp"
+            android:layout_marginRight="@dimen/_10sdp"
             android:background="@drawable/background_input"
             android:textColorHint="@color/black"
             android:hint="@string/password"
@@ -80,12 +77,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_50sdp"
                 android:layout_marginTop="@dimen/_20sdp"
+                android:layout_marginLeft="@dimen/_10sdp"
+                android:layout_marginRight="@dimen/_10sdp"
                 android:text="@string/login"
                 android:textColor="@color/white"
                 android:textSize="@dimen/_13ssp"
                 android:textStyle="bold"
                 app:cornerRadius="@dimen/_8sdp"
-                />
+                tools:ignore="DuplicateSpeakableTextCheck" />
 
             <ProgressBar
                 android:id="@+id/progressBar"

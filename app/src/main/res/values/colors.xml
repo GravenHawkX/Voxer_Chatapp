@@ -1,14 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#ff8c42</color>
-    <color name="primary_dark">#E06900 </color>
-    <color name="primary_text">#BD4F2C</color>
+    <color name="primary">#477998</color>
+    <color name="primary_dark">#0075A2</color>
+    <color name="primary_text">#2D2A32</color>
     <color name="secondary_text">#8B7792</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="input_background">#fffae3</color>
-    <color name="background_main">#FFA66C</color>
+    <color name="input_background">#FFFFFF</color>
+    <color name="background_main">#F2F4F3</color>
     <color name="icon_background">#60ab9a</color>
     <color name="error">#f01e2c</color>
     <color name="received_message_background">#1a281f</color>
+
+
+
+
+
+
+    <!--<color name="primary">#A9927D</color>
+    <color name="primary_dark">#8F7E4F</color>
+    <color name="primary_text">#2D2A32</color>
+    <color name="secondary_text">#8B7792</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="input_background">#FFFFFF</color>
+    <color name="background_main">#F2F4F3</color>
+    <color name="icon_background">#60ab9a</color>
+    <color name="error">#f01e2c</color>
+    <color name="received_message_background">#1a281f</color>-->
 </resources>
