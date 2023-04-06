@@ -1,8 +1,6 @@
 package com.example.voxer.activities;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -21,7 +19,6 @@ import com.example.voxer.utilities.Constants;
 import com.example.voxer.utilities.PreferenceManager;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -29,14 +26,12 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
-import java.util.Collection;
+
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
-public class MainActivity extends AppCompatActivity implements ConversationListener {
+public class MainActivity extends BaseActivity implements ConversationListener {
 
     private ActivityMainBinding binding;
     private PreferenceManager preferenceManager;
@@ -45,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements ConversationListe
     private FirebaseFirestore database;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());

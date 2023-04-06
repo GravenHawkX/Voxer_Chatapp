@@ -11,10 +11,7 @@
     <color name="icon_background">#C4173E</color>
     <color name="error">#f01e2c</color>
     <color name="received_message_background">#1a281f</color>
-
-
-
-
+    <color name="green">#008000</color>
 
 
     <!--<color name="primary">#A9927D</color>
