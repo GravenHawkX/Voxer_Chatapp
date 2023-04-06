@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.voxer.databinding.ItemContainerUserBinding;
-import com.example.voxer.adapters.listeners.UserListener;
+import com.example.voxer.listeners.UserListener;
 import com.example.voxer.models.User;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.example.voxer.adapters.listeners;
+package com.example.voxer.listeners;
 
 import com.example.voxer.models.User;
 

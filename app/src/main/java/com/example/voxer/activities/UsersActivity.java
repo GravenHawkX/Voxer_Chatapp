@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.example.voxer.adapters.UsersAdapter;
-import com.example.voxer.adapters.listeners.UserListener;
+import com.example.voxer.listeners.UserListener;
 import com.example.voxer.databinding.ActivityUsersBinding;
 import com.example.voxer.models.User;
 import com.example.voxer.utilities.Constants;
