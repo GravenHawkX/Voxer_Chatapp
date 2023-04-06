@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.voxer.databinding.ItemContainerUserBinding;
+import com.example.voxer.adapters.listeners.UserListener;
 import com.example.voxer.models.User;
 
 import java.util.List;
@@ -18,11 +19,14 @@ import java.util.List;
 public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UserViewHolder>{
 
     private final List<User> users;
+    private final UserListener userListener;
     //This is the list of users that are available to chat with
 
     //This is the constructor class we have created for it
-    public UsersAdapter(List<User> users) {
+    public UsersAdapter(List<User> users, UserListener userListener) {
+
         this.users = users;
+        this.userListener = userListener;
     }
 
     //These are the method implements
@@ -63,6 +67,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UserViewHold
             binding.textName.setText(user.name);
             binding.textEmail.setText(user.email);
             binding.imageProfile.setImageBitmap(getUserImage(user.image));
+            binding.getRoot().setOnClickListener(v -> userListener.onUserClicked(user));
         }
     }
     private Bitmap getUserImage(String encodedImage){
