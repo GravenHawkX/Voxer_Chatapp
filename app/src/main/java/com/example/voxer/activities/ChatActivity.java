@@ -1,5 +1,6 @@
 package com.example.voxer.activities;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
@@ -100,7 +101,7 @@ public class ChatActivity extends BaseActivity {
         message.put(Constants.KEY_MESSAGE, binding.inputMessage.getText().toString());
         message.put(Constants.KEY_TIMESTAMP, new Date());
         database.collection(Constants.KEY_COLLECTION_CHAT).add(message);
-        Toast.makeText(this, receiverUser.name.toString(), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, receiverUser.name.toString(), Toast.LENGTH_SHORT).show();
         String receiver_name = receiverUser.name;
         if (receiver_name.equals("Private Chat")){
             chatBot(binding.inputMessage.getText().toString(), new ChatBotCallback() {
@@ -316,6 +317,7 @@ public class ChatActivity extends BaseActivity {
     }
 
     private void checkForConversation() {
+        String chatbot = receiverUser.name;
         if(chatMessages.size() != 0){
             checkForConversationRemotely(
                     preferenceManager.getString(Constants.KEY_USER_ID),
@@ -325,6 +327,76 @@ public class ChatActivity extends BaseActivity {
                     receiverUser.id,
                     preferenceManager.getString(Constants.KEY_USER_ID)
             );
+        } else if (chatbot.equals("Private Chat")) {
+            String receiver_name = receiverUser.name;
+            if (receiver_name.equals("Private Chat")){
+                HashMap<String, Object> message = new HashMap<>();
+                message.put(Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
+                message.put(Constants.KEY_RECEIVER_ID, receiverUser.id);
+                message.put(Constants.KEY_MESSAGE, "Hi");
+                message.put(Constants.KEY_TIMESTAMP, new Date());
+                database.collection(Constants.KEY_COLLECTION_CHAT).add(message);
+                chatBot("Hi", new ChatBotCallback() {
+                    @Override
+                    public void onSuccess(String result) {
+                        // update UI with result
+                        HashMap<String, Object> message_c = new HashMap<>();
+                        message_c.put(Constants.KEY_SENDER_ID, receiverUser.id);
+                        message_c.put(Constants.KEY_RECEIVER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
+                        message_c.put(Constants.KEY_MESSAGE, result);
+                        message_c.put(Constants.KEY_TIMESTAMP, new Date());
+                        database.collection(Constants.KEY_COLLECTION_CHAT).add(message_c);
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        // handle exception
+                    }
+                });
+
+
+            }else {
+                Toast.makeText(this, "Not "+receiverUser.name, Toast.LENGTH_SHORT).show();
+            }
+            if(conversationId != null){
+                updateConversation(binding.inputMessage.getText().toString());
+            } else {
+                HashMap<String, Object> conversation = new HashMap<>();
+                conversation.put(Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
+                conversation.put(Constants.KEY_SENDER_NAME, preferenceManager.getString(Constants.KEY_NAME));
+                conversation.put(Constants.KEY_SENDER_IMAGE, preferenceManager.getString(Constants.KEY_IMAGE));
+                conversation.put(Constants.KEY_RECEIVER_ID, receiverUser.id);
+                conversation.put(Constants.KEY_RECEIVER_NAME, receiverUser.name);
+                conversation.put(Constants.KEY_RECEIVER_IMAGE,receiverUser.image);
+                conversation.put(Constants.KEY_LAST_MESSAGE, binding.inputMessage.getText().toString());
+                conversation.put(Constants.KEY_TIMESTAMP, new Date());
+                addConversation(conversation);
+            }
+            if(!isReceiverAvailable){
+                try{
+                    JSONArray tokens = new JSONArray();
+                    tokens.put(receiverUser.token);
+
+                    JSONObject data = new JSONObject();
+                    data.put(Constants.KEY_USER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
+                    data.put(Constants.KEY_NAME, preferenceManager.getString(Constants.KEY_NAME));
+                    data.put(Constants.KEY_FCM_TOKEN, preferenceManager.getString(Constants.KEY_FCM_TOKEN));
+                    data.put(Constants.KEY_MESSAGE, binding.inputMessage.getText().toString());
+
+                    JSONObject body = new JSONObject();
+                    body.put(Constants.REMOTE_MSG_DATA, data);
+                    body.put(Constants.REMOTE_MSG_REGISTRATION_IDS, tokens);
+
+                    sendNotifications(body.toString());
+
+                }catch(Exception exception){
+                    showToast(exception.getMessage());
+                }
+            }
+            binding.inputMessage.setText(null);
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
         }
     }
     private void checkForConversationRemotely(String senderId, String receiverId){

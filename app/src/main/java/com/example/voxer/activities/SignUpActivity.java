@@ -37,6 +37,8 @@ public class SignUpActivity extends AppCompatActivity {
     private ActivitySignUpBinding binding;
     private PreferenceManager preferenceManager;
     private String encodedImage;
+    User chat = new User();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +46,7 @@ public class SignUpActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         preferenceManager = new PreferenceManager((getApplicationContext()));
         setListeners();
+        getUsers();
     }
 
     private void getUsers(){
@@ -53,20 +56,17 @@ public class SignUpActivity extends AppCompatActivity {
                 .get()
                 .addOnCompleteListener(task -> {
                     loading(false);
-                    String currentUserId = preferenceManager.getString(Constants.KEY_USER_ID);
+                    String chatbotid = "HaB8XuwvuBmUfnzRBMnm";
                     if(task.isSuccessful() && task.getResult() != null) {
-                        List<User> users = new ArrayList<>();
                         for (QueryDocumentSnapshot queryDocumentSnapshot : task.getResult()) {
-                            if (currentUserId.equals(queryDocumentSnapshot.getId())) {
-                                continue;
+                            if (chatbotid.equals(queryDocumentSnapshot.getId())) {
+                                chat.name = queryDocumentSnapshot.getString(Constants.KEY_NAME);
+                                chat.email = queryDocumentSnapshot.getString(Constants.KEY_EMAIL);
+                                chat.image = queryDocumentSnapshot.getString(Constants.KEY_IMAGE);
+                                chat.token = queryDocumentSnapshot.getString(Constants.KEY_FCM_TOKEN);
+                                chat.id = queryDocumentSnapshot.getId();
                             }
-                            User chat = new User();
-                            chat.name = queryDocumentSnapshot.getString(Constants.KEY_NAME);
-                            chat.email = queryDocumentSnapshot.getString(Constants.KEY_EMAIL);
-                            chat.image = queryDocumentSnapshot.getString(Constants.KEY_IMAGE);
-                            chat.token = queryDocumentSnapshot.getString(Constants.KEY_FCM_TOKEN);
-                            chat.id = queryDocumentSnapshot.getId();
-                            users.add(chat);
+
                         }
                     }
                 });
@@ -110,7 +110,7 @@ public class SignUpActivity extends AppCompatActivity {
                     //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     //startActivity(intent);
                     Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
-                    intent.putExtra(Constants.KEY_USER, user);
+                    intent.putExtra(Constants.KEY_USER, chat);
                     startActivity(intent);
                     finish();
                 })
