@@ -2,8 +2,12 @@ package com.example.voxer.activities;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Base64;
+import android.util.JsonReader;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -29,6 +33,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,6 +68,7 @@ public class ChatActivity extends BaseActivity {
     private FirebaseFirestore database;
     private String conversationId = null;
     private Boolean isReceiverAvailable = false;
+    String result=null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +100,19 @@ public class ChatActivity extends BaseActivity {
         message.put(Constants.KEY_MESSAGE, binding.inputMessage.getText().toString());
         message.put(Constants.KEY_TIMESTAMP, new Date());
         database.collection(Constants.KEY_COLLECTION_CHAT).add(message);
+        Toast.makeText(this, receiverUser.name.toString(), Toast.LENGTH_SHORT).show();
+        String receiver_name = receiverUser.name;
+        if (receiver_name.equals("Private Chat")){
+            String chat_response = chatBot(binding.inputMessage.getText().toString());
+            HashMap<String, Object> message_c = new HashMap<>();
+            message_c.put(Constants.KEY_SENDER_ID, receiverUser.id);
+            message_c.put(Constants.KEY_RECEIVER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
+            message_c.put(Constants.KEY_MESSAGE, chat_response);
+            message_c.put(Constants.KEY_TIMESTAMP, new Date());
+            database.collection(Constants.KEY_COLLECTION_CHAT).add(message_c);
+        }else {
+            Toast.makeText(this, "Not "+receiverUser.name, Toast.LENGTH_SHORT).show();
+        }
         if(conversationId != null){
             updateConversation(binding.inputMessage.getText().toString());
         } else {
@@ -302,6 +329,58 @@ public class ChatActivity extends BaseActivity {
             conversationId = documentSnapshot.getId();
         }
     };
+
+    public String chatBot(String msg){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    URL url = new URL("https://talktome.ngrok.app/chat");
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    if (conn.getResponseCode()==200){
+                        conn.setRequestMethod("POST");
+                        conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+                        conn.setRequestProperty("Accept", "application/json");
+                        conn.setDoOutput(true);
+                        conn.setDoInput(true);
+                        JSONObject jsonParam = new JSONObject();
+                        jsonParam.put("message", msg);
+                        Log.i("JSON", jsonParam.toString());
+                        DataOutputStream os = new DataOutputStream(conn.getOutputStream());
+                        //os.writeBytes(URLEncoder.encode(jsonParam.toString(), "UTF-8"));
+                        os.writeBytes(jsonParam.toString());
+                        os.flush();
+                        os.close();
+                        InputStream responseBody = conn.getInputStream();
+                        InputStreamReader responseBodyReader =
+                                new InputStreamReader(responseBody, "UTF-8");
+                        JsonReader jsonReader = new JsonReader(responseBodyReader);
+                        jsonReader.beginObject(); // Start processing the JSON object
+                        while (jsonReader.hasNext()) { // Loop through all keys
+                            String key = jsonReader.nextName(); // Fetch the next key
+                            if (key.equals("mgs")) { // Check if desired key
+                                // Fetch the value as a String
+                                result = jsonReader.nextString();
+                                break; // Break out of the loop
+                            } else {
+                                jsonReader.skipValue(); // Skip values of other keys
+                            }
+                        }
+                        jsonReader.close();
+
+                    }else {
+                        result = "Chat Bot server is Down";
+                        //Toast.makeText(ChatActivity.this, "Chat Bot server is down", Toast.LENGTH_SHORT).show();
+                    }
+                    conn.disconnect();
+
+                } catch (JSONException | IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).start();
+        return result;
+    }
 
     @Override
     protected void onResume() {
