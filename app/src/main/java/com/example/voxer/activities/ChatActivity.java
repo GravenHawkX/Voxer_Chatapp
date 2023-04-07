@@ -103,13 +103,25 @@ public class ChatActivity extends BaseActivity {
         Toast.makeText(this, receiverUser.name.toString(), Toast.LENGTH_SHORT).show();
         String receiver_name = receiverUser.name;
         if (receiver_name.equals("Private Chat")){
-            String chat_response = chatBot(binding.inputMessage.getText().toString());
-            HashMap<String, Object> message_c = new HashMap<>();
-            message_c.put(Constants.KEY_SENDER_ID, receiverUser.id);
-            message_c.put(Constants.KEY_RECEIVER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
-            message_c.put(Constants.KEY_MESSAGE, chat_response);
-            message_c.put(Constants.KEY_TIMESTAMP, new Date());
-            database.collection(Constants.KEY_COLLECTION_CHAT).add(message_c);
+            chatBot(binding.inputMessage.getText().toString(), new ChatBotCallback() {
+                @Override
+                public void onSuccess(String result) {
+                    // update UI with result
+                    HashMap<String, Object> message_c = new HashMap<>();
+                    message_c.put(Constants.KEY_SENDER_ID, receiverUser.id);
+                    message_c.put(Constants.KEY_RECEIVER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
+                    message_c.put(Constants.KEY_MESSAGE, result);
+                    message_c.put(Constants.KEY_TIMESTAMP, new Date());
+                    database.collection(Constants.KEY_COLLECTION_CHAT).add(message_c);
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    // handle exception
+                }
+            });
+
+
         }else {
             Toast.makeText(this, "Not "+receiverUser.name, Toast.LENGTH_SHORT).show();
         }
@@ -330,27 +342,33 @@ public class ChatActivity extends BaseActivity {
         }
     };
 
-    public String chatBot(String msg){
+    public interface ChatBotCallback {
+        void onSuccess(String result);
+        void onFailure(Exception e);
+    }
+
+    public void chatBot(String msg, ChatBotCallback callback) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
+                    // your existing code here
                     URL url = new URL("https://talktome.ngrok.app/chat");
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+                    conn.setRequestProperty("Accept", "application/json");
+                    conn.setDoOutput(true);
+                    conn.setDoInput(true);
+                    JSONObject jsonParam = new JSONObject();
+                    jsonParam.put("message", msg);
+                    Log.i("JSON", jsonParam.toString());
+                    DataOutputStream os = new DataOutputStream(conn.getOutputStream());
+                    //os.writeBytes(URLEncoder.encode(jsonParam.toString(), "UTF-8"));
+                    os.writeBytes(jsonParam.toString());
+                    os.flush();
+                    os.close();
                     if (conn.getResponseCode()==200){
-                        conn.setRequestMethod("POST");
-                        conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
-                        conn.setRequestProperty("Accept", "application/json");
-                        conn.setDoOutput(true);
-                        conn.setDoInput(true);
-                        JSONObject jsonParam = new JSONObject();
-                        jsonParam.put("message", msg);
-                        Log.i("JSON", jsonParam.toString());
-                        DataOutputStream os = new DataOutputStream(conn.getOutputStream());
-                        //os.writeBytes(URLEncoder.encode(jsonParam.toString(), "UTF-8"));
-                        os.writeBytes(jsonParam.toString());
-                        os.flush();
-                        os.close();
                         InputStream responseBody = conn.getInputStream();
                         InputStreamReader responseBodyReader =
                                 new InputStreamReader(responseBody, "UTF-8");
@@ -367,19 +385,19 @@ public class ChatActivity extends BaseActivity {
                             }
                         }
                         jsonReader.close();
-
                     }else {
                         result = "Chat Bot server is Down";
                         //Toast.makeText(ChatActivity.this, "Chat Bot server is down", Toast.LENGTH_SHORT).show();
                     }
                     conn.disconnect();
-
-                } catch (JSONException | IOException e) {
-                    throw new RuntimeException(e);
+                    // Notify the callback on success
+                    callback.onSuccess(result);
+                } catch (Exception e) {
+                    // Notify the callback on failure
+                    callback.onFailure(e);
                 }
             }
         }).start();
-        return result;
     }
 
     @Override

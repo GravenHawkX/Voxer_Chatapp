@@ -16,15 +16,20 @@ import android.view.View;
 import android.widget.Toast;
 
 
+import com.example.voxer.adapters.UsersAdapter;
 import com.example.voxer.databinding.ActivitySignUpBinding;
+import com.example.voxer.models.User;
 import com.example.voxer.utilities.Constants;
 import com.example.voxer.utilities.PreferenceManager;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 
 public class SignUpActivity extends AppCompatActivity {
@@ -39,6 +44,32 @@ public class SignUpActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         preferenceManager = new PreferenceManager((getApplicationContext()));
         setListeners();
+    }
+
+    private void getUsers(){
+        loading(true);
+        FirebaseFirestore database = FirebaseFirestore.getInstance();
+        database.collection(Constants.KEY_COLLECTION_USERS)
+                .get()
+                .addOnCompleteListener(task -> {
+                    loading(false);
+                    String currentUserId = preferenceManager.getString(Constants.KEY_USER_ID);
+                    if(task.isSuccessful() && task.getResult() != null) {
+                        List<User> users = new ArrayList<>();
+                        for (QueryDocumentSnapshot queryDocumentSnapshot : task.getResult()) {
+                            if (currentUserId.equals(queryDocumentSnapshot.getId())) {
+                                continue;
+                            }
+                            User chat = new User();
+                            chat.name = queryDocumentSnapshot.getString(Constants.KEY_NAME);
+                            chat.email = queryDocumentSnapshot.getString(Constants.KEY_EMAIL);
+                            chat.image = queryDocumentSnapshot.getString(Constants.KEY_IMAGE);
+                            chat.token = queryDocumentSnapshot.getString(Constants.KEY_FCM_TOKEN);
+                            chat.id = queryDocumentSnapshot.getId();
+                            users.add(chat);
+                        }
+                    }
+                });
     }
 
     private void setListeners() {
@@ -75,9 +106,13 @@ public class SignUpActivity extends AppCompatActivity {
                     preferenceManager.putString(Constants.KEY_USER_ID, documentReference.getId());
                     preferenceManager.putString(Constants.KEY_NAME, binding.InputName.getText().toString());
                     preferenceManager.putString(Constants.KEY_IMAGE, encodedImage);
-                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    //Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    //startActivity(intent);
+                    Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
+                    intent.putExtra(Constants.KEY_USER, user);
                     startActivity(intent);
+                    finish();
                 })
                 .addOnFailureListener(exception -> {
                     loading(false);
