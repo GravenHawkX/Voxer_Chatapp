@@ -2,15 +2,20 @@ package com.example.voxer.adapters;
 
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.voxer.activities.ChatActivity;
 import com.example.voxer.databinding.ItemContainerRecievedMessageBinding;
 import com.example.voxer.databinding.ItemContainerSentMessageBinding;
 import com.example.voxer.models.ChatMessage;
+import com.example.voxer.network.TTSServer;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -77,28 +82,52 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    static class SentMessageViewHolder extends RecyclerView.ViewHolder{
+    static class SentMessageViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private final ItemContainerSentMessageBinding binding;
 
         SentMessageViewHolder(ItemContainerSentMessageBinding itemContainerSentMessageBinding){
             super(itemContainerSentMessageBinding.getRoot());
             binding = itemContainerSentMessageBinding;
+            binding.textMessage.setOnClickListener(this);
         }
 
         void setData(ChatMessage chatMessage){
             binding.textMessage.setText(chatMessage.message);
             binding.textDateTime.setText(chatMessage.dateTime);
         }
+
+        @Override
+        public void onClick(View v) {
+            if (v.getId() == binding.textMessage.getId()) {
+                String messageText = binding.textMessage.getText().toString();
+                // do something with the message text, like open a new activity or show a dialog
+                TTSServer tts = new TTSServer(itemView.getContext());
+                tts.ttsServer(messageText,new ChatActivity.ChatBotCallback() {
+                    @Override
+                    public void onSuccess(String result) {
+                        // update UI with result
+                        //Toast.makeText(chatActivity, result, Toast.LENGTH_SHORT).show();
+                        tts.playAudio(result);
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        // handle exception
+                    }
+                });
+            }
+        }
     }
 
-    static class ReceivedMessageViewHolder extends RecyclerView.ViewHolder{
+    static class ReceivedMessageViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private final ItemContainerRecievedMessageBinding binding;
 
         ReceivedMessageViewHolder(ItemContainerRecievedMessageBinding itemContainerRecievedMessageBinding){
             super(itemContainerRecievedMessageBinding.getRoot());
             binding = itemContainerRecievedMessageBinding;
+            binding.textMessage.setOnClickListener(this);
         }
 
         void setData(ChatMessage chatMessage, Bitmap receiverImageProfile){
@@ -110,6 +139,27 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         }
 
+        @Override
+        public void onClick(View v) {
+            if (v.getId() == binding.textMessage.getId()) {
+                String messageText = binding.textMessage.getText().toString();
+                // do something with the message text, like open a new activity or show a dialog
+                TTSServer tts = new TTSServer(itemView.getContext());
+                tts.ttsServer(messageText,new ChatActivity.ChatBotCallback() {
+                    @Override
+                    public void onSuccess(String result) {
+                        // update UI with result
+                        //Toast.makeText(chatActivity, result, Toast.LENGTH_SHORT).show();
+                        tts.playAudio(result);
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        // handle exception
+                    }
+                });
+            }
+        }
     }
 
 }

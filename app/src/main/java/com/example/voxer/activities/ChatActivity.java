@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.example.voxer.R;
 import com.example.voxer.adapters.ChatAdapter;
 import com.example.voxer.databinding.ActivityChatBinding;
 import com.example.voxer.models.ChatMessage;
@@ -84,23 +85,6 @@ public class ChatActivity extends BaseActivity {
         init();
         listenMessages();
 
-        ttsServer("Hello! It is nice to meet you. I am making this message long",new ChatBotCallback() {
-            @Override
-            public void onSuccess(String result) {
-                // update UI with result
-                HashMap<String, Object> message_c = new HashMap<>();
-                message_c.put("sph",result);
-                database.collection("speech").add(message_c);
-                playAudio(result);
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                // handle exception
-            }
-        });
-
-
     }
 
     private void init(){
@@ -142,78 +126,21 @@ public class ChatActivity extends BaseActivity {
             updateConversation(binding.inputMessage.getText().toString());
         } else {
             HashMap<String, Object> conversation = new HashMap<>();
-            conversation.put(Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
-            conversation.put(Constants.KEY_SENDER_NAME, preferenceManager.getString(Constants.KEY_NAME));
-            conversation.put(Constants.KEY_SENDER_IMAGE, preferenceManager.getString(Constants.KEY_IMAGE));
-            conversation.put(Constants.KEY_RECEIVER_ID, receiverUser.id);
-            conversation.put(Constants.KEY_RECEIVER_NAME, receiverUser.name);
-            conversation.put(Constants.KEY_RECEIVER_IMAGE,receiverUser.image);
+            conversation.put(Constants.KEY_RECEIVER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
+            conversation.put(Constants.KEY_RECEIVER_NAME, preferenceManager.getString(Constants.KEY_NAME));
+            conversation.put(Constants.KEY_RECEIVER_IMAGE, preferenceManager.getString(Constants.KEY_IMAGE));
+            conversation.put(Constants.KEY_SENDER_ID, receiverUser.id);
+            conversation.put(Constants.KEY_SENDER_NAME, receiverUser.name);
+            conversation.put(Constants.KEY_SENDER_IMAGE,receiverUser.image);
             conversation.put(Constants.KEY_LAST_MESSAGE, binding.inputMessage.getText().toString());
             conversation.put(Constants.KEY_TIMESTAMP, new Date());
             addConversation(conversation);
         }
-        if(!isReceiverAvailable){
-            try{
-                JSONArray tokens = new JSONArray();
-                tokens.put(receiverUser.token);
 
-                JSONObject data = new JSONObject();
-                data.put(Constants.KEY_USER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
-                data.put(Constants.KEY_NAME, preferenceManager.getString(Constants.KEY_NAME));
-                data.put(Constants.KEY_FCM_TOKEN, preferenceManager.getString(Constants.KEY_FCM_TOKEN));
-                data.put(Constants.KEY_MESSAGE, binding.inputMessage.getText().toString());
-
-                JSONObject body = new JSONObject();
-                body.put(Constants.REMOTE_MSG_DATA, data);
-                body.put(Constants.REMOTE_MSG_REGISTRATION_IDS, tokens);
-
-                sendNotifications(body.toString());
-
-            }catch(Exception exception){
-                showToast(exception.getMessage());
-            }
-        }
-        binding.inputMessage.setText(null);
     }
 
     private void sendMessage(){
-        /*ttsServer(binding.inputMessage.getText().toString(),new ChatBotCallback() {
-            @Override
-            public void onSuccess(String result) {
-                // update UI with result
-                if (result.equals("error_404")){
-                    HashMap<String, Object> message = new HashMap<>();
-                    message.put(Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
-                    message.put(Constants.KEY_RECEIVER_ID, receiverUser.id);
-                    message.put(Constants.KEY_MESSAGE, binding.inputMessage.getText().toString());
-                    message.put(Constants.KEY_TIMESTAMP, new Date());
-                    database.collection(Constants.KEY_COLLECTION_CHAT).add(message);
-                    receiveReply();
-                }else {
-                    HashMap<String, Object> message = new HashMap<>();
-                    message.put(Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
-                    message.put(Constants.KEY_RECEIVER_ID, receiverUser.id);
-                    message.put(Constants.KEY_MESSAGE, binding.inputMessage.getText().toString());
-                    message.put(Constants.KEY_TIMESTAMP, new Date());
-                    message.put(Constants.KEY_SPEECH, result);
-                    database.collection(Constants.KEY_COLLECTION_CHAT).add(message);
-                    receiveReply();
-                }
-            }
 
-            @Override
-            public void onFailure(Exception e) {
-                // handle exception
-                HashMap<String, Object> message = new HashMap<>();
-                message.put(Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
-                message.put(Constants.KEY_RECEIVER_ID, receiverUser.id);
-                message.put(Constants.KEY_MESSAGE, binding.inputMessage.getText().toString());
-                message.put(Constants.KEY_TIMESTAMP, new Date());
-                database.collection(Constants.KEY_COLLECTION_CHAT).add(message);
-                receiveReply();
-            }
-        });
-*/
         HashMap<String, Object> message = new HashMap<>();
         message.put(Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
         message.put(Constants.KEY_RECEIVER_ID, receiverUser.id);
@@ -568,75 +495,6 @@ public class ChatActivity extends BaseActivity {
         }).start();
     }
 
-    public void ttsServer(String msg, ChatBotCallback callback) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    // your existing code here
-                    URL url = new URL("https://talktome.ngrok.app/message");
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                    conn.setRequestMethod("POST");
-                    conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
-                    conn.setRequestProperty("Accept", "application/json");
-                    conn.setDoOutput(true);
-                    conn.setDoInput(true);
-                    JSONObject jsonParam = new JSONObject();
-                    jsonParam.put("message", msg);
-                    Log.i("JSON", jsonParam.toString());
-                    DataOutputStream os = new DataOutputStream(conn.getOutputStream());
-                    //os.writeBytes(URLEncoder.encode(jsonParam.toString(), "UTF-8"));
-                    os.writeBytes(jsonParam.toString());
-                    os.flush();
-                    os.close();
-                    if (conn.getResponseCode()==200){
-                        InputStream responseBody = conn.getInputStream();
-                        InputStreamReader responseBodyReader =
-                                new InputStreamReader(responseBody, "UTF-8");
-                        JsonReader jsonReader = new JsonReader(responseBodyReader);
-                        jsonReader.beginObject(); // Start processing the JSON object
-                        while (jsonReader.hasNext()) { // Loop through all keys
-                            String key = jsonReader.nextName(); // Fetch the next key
-                            if (key.equals("audio_base64")) { // Check if desired key
-                                // Fetch the value as a String
-                                result = jsonReader.nextString();
-                                break; // Break out of the loop
-                            } else {
-                                jsonReader.skipValue(); // Skip values of other keys
-                            }
-                        }
-                        jsonReader.close();
-                    }else {
-                        result = "error_404";
-                        //Toast.makeText(ChatActivity.this, "Chat Bot server is down", Toast.LENGTH_SHORT).show();
-                    }
-                    conn.disconnect();
-                    // Notify the callback on success
-                    callback.onSuccess(result);
-                } catch (Exception e) {
-                    // Notify the callback on failure
-                    callback.onFailure(e);
-                }
-            }
-        }).start();
-    }
-
-    public void playAudio(String encodedAudio){
-        byte[] decodedAudio = Base64.decode(encodedAudio, Base64.DEFAULT);
-        String fileName = "audio.wav";
-
-        try {
-            FileOutputStream outputStream = openFileOutput(fileName, Context.MODE_PRIVATE);
-            outputStream.write(decodedAudio);
-            outputStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(), Uri.parse(getFilesDir() + "/" + fileName));
-        mediaPlayer.start();
-
-    }
 
 
     @Override
