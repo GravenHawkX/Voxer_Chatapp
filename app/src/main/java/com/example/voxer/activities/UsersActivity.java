@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import com.example.voxer.adapters.UsersAdapter;
 import com.example.voxer.listeners.UserListener;
@@ -63,6 +64,7 @@ public class UsersActivity extends BaseActivity implements UserListener {
                             binding.usersRecyclerView.setAdapter(usersAdapter);
                             binding.usersRecyclerView.setVisibility(View.VISIBLE);
                         }else {
+                            //Toast.makeText(this, "No Users", Toast.LENGTH_SHORT).show();
                             showErrorMessage();
                         }
                     }else {

@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.example.voxer.adapters.RecentConversationsAdapter;
+import com.example.voxer.adapters.UsersAdapter;
 import com.example.voxer.databinding.ActivityMainBinding;
 import com.example.voxer.listeners.ConversationListener;
 import com.example.voxer.models.ChatMessage;
@@ -22,6 +23,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 
@@ -50,6 +52,9 @@ public class MainActivity extends BaseActivity implements ConversationListener {
         getToken();
         setListeners();
         listenConversations();
+        binding.imageProfile.setOnClickListener(v -> {
+
+        });
     }
 
     private void init(){
@@ -128,6 +133,8 @@ public class MainActivity extends BaseActivity implements ConversationListener {
             binding.conversationRecyclerView.smoothScrollToPosition(0);
             binding.conversationRecyclerView.setVisibility(View.VISIBLE);
             binding.progressBar.setVisibility(View.GONE);
+        }else {
+
         }
     };
 
